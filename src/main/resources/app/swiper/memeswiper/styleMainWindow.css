@@ -1,0 +1,67 @@
+/* 3.1. Barra Lateral */
+.sidebar {
+    -fx-background-color: #ffffff;
+    -fx-border-color: #eeeeee;
+    -fx-border-width: 0 1 0 0;
+}
+
+.sidebar-header {
+    -fx-background-color: #ff5864;
+    -fx-padding: 10;
+}
+
+.profile-label {
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-font-size: 16px;
+}
+
+/* 3.2. Área de Contenido */
+.content-area {
+    -fx-background-color: #f0f2f5;
+    -fx-padding: 20;
+}
+
+/* 3.3. Contenedor del Mazo de Cartas */
+.user-card-container {
+    -fx-background-color: #222; /* Fondo oscuro para resaltar memes */
+    -fx-background-radius: 15 15 0 0;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 10, 0, 0, 5);
+}
+
+.user-card {
+    -fx-background-color: transparent; /* El fondo lo da el contenedor o la imagen */
+}
+
+/* 3.4. Contenedor de Botones (Estático) */
+.controls-container {
+    -fx-padding: 20;
+    -fx-background-color: #2c2c2c;
+    -fx-background-radius: 0 0 15 15;
+}
+
+/* 3.5. Botones de Acción */
+.action-button {
+    -fx-background-color: white;
+    -fx-background-radius: 50;
+    -fx-min-width: 60px;
+    -fx-min-height: 60px;
+    -fx-font-size: 24px;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.2), 5, 0, 0, 2);
+    -fx-cursor: hand;
+    -fx-transition: 0.2s;
+}
+
+.action-button:hover {
+    -fx-scale-x: 1.1;
+    -fx-scale-y: 1.1;
+}
+
+#dislikeButton { -fx-text-fill: #ff4444; }
+#starButton { -fx-text-fill: #3498db; }
+#likeButton { -fx-text-fill: #2ecc71; }
+
+.action-button:pressed {
+    -fx-scale-x: 0.9;
+    -fx-scale-y: 0.9;
+}
