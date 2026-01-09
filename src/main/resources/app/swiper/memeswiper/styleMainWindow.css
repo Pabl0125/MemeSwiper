@@ -1,13 +1,30 @@
 /* 3.1. Barra Lateral */
 .sidebar {
-    -fx-background-color: #ffffff;
-    -fx-border-color: #eeeeee;
+    -fx-background-color: #0077b6;
+    -fx-border-color: #03045e;
     -fx-border-width: 0 1 0 0;
 }
-
+.hide-sidebar-button{
+    -fx-background-color: #0077b6;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-border-radius: 10%;
+    -fx-font-size: 14px;
+}
 .sidebar-header {
-    -fx-background-color: #ff5864;
+    -fx-background-color: #0077b6;
     -fx-padding: 10;
+}
+.sidebar-button{
+    -fx-background-color: #0077b6;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+}
+
+.sidebar-button:hover{
+    -fx-scale-x: 1.1;
+    -fx-scale-y: 1.1;
+    -fx-background-color: #00b4d8;
 }
 
 .profile-label {

@@ -12,6 +12,7 @@ import javafx.scene.shape.Rectangle;
 import javafx.util.Duration;
 
 import java.net.URL;
+import java.util.HashSet;
 
 public class HelloController {
 
@@ -20,21 +21,24 @@ public class HelloController {
     @FXML private VBox userCard1; // Tarjeta de fondo
     @FXML private VBox userCard2; // Tarjeta de frente (la que se mueve)
     @FXML private VBox sideBar;
-
     // Imágenes
     @FXML private ImageView card1;
     @FXML private ImageView card2;
-
     // Botones Globales
     @FXML private Button likeButton;
     @FXML private Button dislikeButton;
 
+    //Lista con las urls de los memes ya mostrados
+    private HashSet<String> showedMemes = new HashSet<>();
+    private MemeRequester memeRequester = new MemeRequester();
     private boolean isExpanded = true;
     private final double SIDEBAR_WIDTH = 250;
     private final String DEFAULT_IMAGE_PATH = "/app/swiper/memeswiper/defaultImage.jpg";
 
     @FXML
     public void initialize() {
+
+
         // 1. Configurar el clip del menú lateral
         Rectangle clip = new Rectangle();
         clip.widthProperty().bind(sideBar.widthProperty());
@@ -54,15 +58,22 @@ public class HelloController {
         // 4. Carga inicial de memes
         loadMeme(card2); // Imagen visible al frente
         loadMeme(card1); // Imagen preparada detrás
+        userCard1.setOpacity(0.0);
+        userCard1.setMouseTransparent(true);
     }
 
     private void loadMeme(ImageView iv) {
         URL defaultUrl = getClass().getResource(DEFAULT_IMAGE_PATH);
         String finalUrl = (defaultUrl != null) ? defaultUrl.toExternalForm() : "";
-
+        String apiUrl;
         try {
-            String apiUrl = MemeRequester.request().getUrl();
-            if (apiUrl != null && !apiUrl.isEmpty()) finalUrl = apiUrl;
+            do {
+                apiUrl = memeRequester.request().getUrl();
+            }while(showedMemes.contains(apiUrl));
+            if (apiUrl != null && !apiUrl.isEmpty()) {
+                finalUrl = apiUrl;
+                showedMemes.add(apiUrl);
+            }
         } catch (Exception e) {
             System.err.println("Error API: " + e.getMessage());
         }
@@ -77,28 +88,34 @@ public class HelloController {
         double deltaX = isLike ? 750 : -750;
         double rotateAngle = isLike ? 35 : -35;
 
-        // Animación de la tarjeta superior (userCard2)
+        // ANIMACIÓN SALIDA (FRENTE)
         TranslateTransition translate = new TranslateTransition(duration, userCard2);
         translate.setToX(deltaX);
-
         RotateTransition rotate = new RotateTransition(duration, userCard2);
         rotate.setToAngle(rotateAngle);
+        FadeTransition fadeOut = new FadeTransition(duration, userCard2);
+        fadeOut.setToValue(0);
 
-        FadeTransition fade = new FadeTransition(duration, userCard2);
-        fade.setToValue(0);
+        // ANIMACIÓN ENTRADA (FONDO)
+        FadeTransition fadeIn = new FadeTransition(duration, userCard1);
+        fadeIn.setFromValue(0.0);
+        fadeIn.setToValue(1.0);
 
-        ParallelTransition parallel = new ParallelTransition(translate, rotate, fade);
+        ParallelTransition parallel = new ParallelTransition(translate, rotate, fadeOut, fadeIn);
 
         parallel.setOnFinished(event -> {
-            // INTERCAMBIO: La imagen de atrás pasa al frente
+            // 3.1. Sincronizar: La imagen que estaba atrás pasa al frente
             card2.setImage(card1.getImage());
 
-            // RESET: Devolver la tarjeta superior al centro de forma invisible
+            // 3.2. RESET FRENTE: Vuelve al centro lista para el nuevo meme
             userCard2.setTranslateX(0);
             userCard2.setRotate(0);
             userCard2.setOpacity(1.0);
 
-            // PRECARGA: Traer nuevo meme para la tarjeta de atrás
+            // 3.3. RESET FONDO: Se oculta de nuevo inmediatamente
+            userCard1.setOpacity(0.0);
+
+            // 3.4. Cargar el futuro meme en la tarjeta oculta
             loadMeme(card1);
         });
 

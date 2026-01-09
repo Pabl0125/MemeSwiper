@@ -5,15 +5,15 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.io.IOException;
+import java.util.HashSet;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class MemeRequester {
+    private String subredit = "TrumpMemes";
 
-    private static final String API_LINK = "https://meme-api.com/gimme";
-
-    public static MemeResponse request() throws Exception {
-
+    public MemeResponse request() throws Exception {
+        String API_LINK = "https://meme-api.com/gimme/" + this.subredit;
         HttpClient client = HttpClient.newHttpClient();
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(API_LINK))
@@ -37,5 +37,13 @@ public class MemeRequester {
         } catch (IOException | InterruptedException e) {
             throw new Exception("Fallo de conexión al obtener el meme", e);
         }
+    }
+
+    public void setSubredit(String subredit) {
+        this.subredit = subredit;
+
+    }
+    public String getSubredit(){
+        return this.subredit;
     }
 }
