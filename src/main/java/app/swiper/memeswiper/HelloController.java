@@ -52,6 +52,7 @@ public class HelloController {
     private final double SIDEBAR_WIDTH = 250;
     private final String DEFAULT_IMAGE_PATH = "/app/swiper/memeswiper/defaultImage.jpg";
     private Image LOADING_IMAGE = new Image(getClass().getResource("/app/swiper/memeswiper/loadingImage.gif").toExternalForm());
+    private Image PAGE_NOT_FOUND_IMAGE = new Image(getClass().getResource("/app/swiper/memeswiper/pageNotFound.png").toExternalForm());
     @FXML
     public void initialize() {
         // 1. Clip del sidebar
@@ -103,6 +104,7 @@ public class HelloController {
                 } else {
                     // Manejo de error si no hay internet (Opcional: poner imagen de error)
                     System.out.println("No se pudo cargar el meme.");
+                    iv.setImage(PAGE_NOT_FOUND_IMAGE);
                 }
 
                 // 5. DESBLOQUEO: Ya es seguro hacer clic de nuevo

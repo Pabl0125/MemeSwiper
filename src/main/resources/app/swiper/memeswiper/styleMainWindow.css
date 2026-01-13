@@ -1,8 +1,7 @@
 /* 3.1. Barra Lateral */
 .sidebar {
     -fx-background-color: #0077b6;
-    -fx-border-color: #03045e;
-    -fx-border-width: 0 1 0 0;
+    -fx-border-width: 0 0 0 0;
 }
 .hide-sidebar-button{
     -fx-background-color: #0077b6;
