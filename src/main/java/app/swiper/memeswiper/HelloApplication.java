@@ -11,7 +11,7 @@ public class HelloApplication extends Application {
 
     private static final double WIDTH = 900;
     private static final double HEIGHT = 600;
-
+    private HelloController mainController;
     @Override
     public void start(Stage stage) throws IOException {
         URL fxmlLocation = getClass().getResource("/app/swiper/memeswiper/MainWindow.fxml");
@@ -20,7 +20,7 @@ public class HelloApplication extends Application {
         }
         FXMLLoader fxmlLoader = new FXMLLoader(fxmlLocation);
         Scene scene = new Scene(fxmlLoader.load(), WIDTH, HEIGHT);
-
+        mainController = fxmlLoader.getController();
         URL cssLocation = getClass().getResource("/app/swiper/memeswiper/styleMainWindow.css");
         if (cssLocation != null) {
             scene.getStylesheets().add(cssLocation.toExternalForm());
@@ -31,6 +31,14 @@ public class HelloApplication extends Application {
         stage.setTitle("MemeSwiper");
         stage.setScene(scene);
         stage.show();
+    }
+    @Override
+    public void stop() {
+        // 1.1.1 Este código se ejecuta SIEMPRE al cerrar la app
+        if (mainController != null) {
+            mainController.saveLikedMemes(mainController.getLikedMemes());
+            System.out.println("Persistencia completada antes del cierre.");
+        }
     }
 
     public static void main(String[] args) {

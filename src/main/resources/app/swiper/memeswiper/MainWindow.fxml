@@ -10,25 +10,45 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<BorderPane fx:id="mainContainer" prefHeight="600.0" prefWidth="900.0" stylesheets="@styleMainWindow.css" xmlns="http://javafx.com/javafx/24.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="app.swiper.memeswiper.HelloController">
+<?import javafx.scene.control.TextField?>
+<BorderPane fx:id="mainContainer" prefHeight="600.0" prefWidth="900.0" stylesheets="@styleMainWindow.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="app.swiper.memeswiper.HelloController">
 
     <left>
         <VBox fx:id="sideBar" minWidth="0.0" prefWidth="250.0" styleClass="sidebar">
             <children>
                 <HBox alignment="CENTER_LEFT" prefHeight="60.0" styleClass="sidebar-header">
                     <Label prefHeight="35.0" prefWidth="200.0" styleClass="profile-label" text="Meme Swiper">
-                  <font>
-                     <Font size="24.0" />
-                  </font></Label>
+                        <font>
+                            <Font size="24.0" />
+                        </font>
+                    </Label>
                 </HBox>
-                <Button mnemonicParsing="false" prefHeight="36.0" prefWidth="265.0" styleClass="sidebar-button" text="Gallery" />
-                <Button mnemonicParsing="false" prefHeight="36.0" prefWidth="265.0" styleClass="sidebar-button" text="Liked" />
-                <Button mnemonicParsing="false" prefHeight="36.0" prefWidth="265.0" styleClass="sidebar-button" text="Info" />
-            <Button mnemonicParsing="false" prefHeight="36.0" prefWidth="265.0" styleClass="sidebar-button" text="Configuration" />
+
+                <VBox spacing="5.0" style="-fx-padding: 0 15 15 15;">
+                    <Label text="Subreddit Source:" textFill="white">
+                        <font><Font size="12.0"/></font>
+                    </Label>
+
+                    <HBox spacing="5.0" alignment="CENTER_LEFT">
+                        <children>
+                            <TextField fx:id="txtSubreddit" promptText="default (memes)"
+                                       onAction="#handleChangeSubreddit"
+                                       style="-fx-background-color: #333; -fx-text-fill: white; -fx-background-radius: 5;"
+                                       HBox.hgrow="ALWAYS" />
+
+                            <Button text="Go" onAction="#handleChangeSubreddit"
+                                    style="-fx-background-color: #03045E; -fx-text-fill: white; -fx-font-weight: bold;-fx-cursor: hand; -fx-background-radius: 5;"/>
+                        </children>
+                    </HBox>
+                </VBox>
+
+                <javafx.scene.control.Separator style="-fx-opacity: 0.1; -fx-padding: 0 10 10 10;" />
+
+                <Button fx:id="memeViewerButton" mnemonicParsing="false" onAction="#showMainViewer" prefHeight="36.0" prefWidth="265.0" styleClass="sidebar-button" text="MemeViewer" />
+                <Button fx:id="galleryButton" mnemonicParsing="false" onAction="#showGallery" prefHeight="36.0" prefWidth="265.0" styleClass="sidebar-button" text="Gallery" />
             </children>
         </VBox>
     </left>
-
     <center>
         <StackPane fx:id="contentArea" styleClass="content-area">
             <children>

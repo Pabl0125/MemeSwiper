@@ -5,15 +5,14 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.io.IOException;
-import java.util.HashSet;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class MemeRequester {
-    private String subredit = "TrumpMemes";
-
+    private String subreddit = "memes";
+    private MemeResponse lastResponse;
     public MemeResponse request() throws Exception {
-        String API_LINK = "https://meme-api.com/gimme/" + this.subredit;
+        String API_LINK = "https://meme-api.com/gimme/" + this.subreddit;
         HttpClient client = HttpClient.newHttpClient();
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(API_LINK))
@@ -31,7 +30,7 @@ public class MemeRequester {
             ObjectMapper mapper = new ObjectMapper();
 
             MemeResponse meme = mapper.readValue(response.body(), MemeResponse.class);
-
+            this.lastResponse = meme;
             return meme;
 
         } catch (IOException | InterruptedException e) {
@@ -39,11 +38,14 @@ public class MemeRequester {
         }
     }
 
-    public void setSubredit(String subredit) {
-        this.subredit = subredit;
+    public void setSubreddit(String subreddit) {
+        this.subreddit = subreddit;
 
     }
-    public String getSubredit(){
-        return this.subredit;
+    public String getSubreddit(){
+        return this.subreddit;
+    }
+    public MemeResponse getLastResponse() {
+        return this.lastResponse;
     }
 }

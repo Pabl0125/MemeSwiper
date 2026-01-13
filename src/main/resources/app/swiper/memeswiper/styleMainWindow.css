@@ -25,6 +25,7 @@
     -fx-scale-x: 1.1;
     -fx-scale-y: 1.1;
     -fx-background-color: #00b4d8;
+    -fx-cursor: hand;
 }
 
 .profile-label {
@@ -81,4 +82,20 @@
 .action-button:pressed {
     -fx-scale-x: 0.9;
     -fx-scale-y: 0.9;
+}
+
+.gallery-image {
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.4), 10, 0, 0, 0);
+}
+
+.gallery-image:hover {
+    -fx-scale-x: 1.05;
+    -fx-scale-y: 1.05;
+    -fx-cursor: hand;
+}
+
+.scroll-pane {
+    -fx-background-color: transparent;
+    -fx-background: #1a1a1a; /* Color de fondo del área de scroll */
+    -fx-border-color: transparent;
 }

@@ -3,6 +3,7 @@ module app.swiper.memeswiper {
     requires javafx.fxml;
     requires java.net.http;
     requires com.fasterxml.jackson.databind;
+    requires java.desktop;
 
     opens app.swiper.memeswiper to javafx.fxml;
 

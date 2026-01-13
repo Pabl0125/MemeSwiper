@@ -2,6 +2,7 @@ package app.memeapi.requester;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import java.util.List;
+import java.util.Objects;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class MemeResponse {
@@ -46,4 +47,15 @@ public class MemeResponse {
 
     public List<String> getPreview() { return preview; }
     public void setPreview(List<String> preview) { this.preview = preview; }
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof MemeResponse that)) return false;
+        return Objects.equals(url, that.url);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(url);
+    }
 }
