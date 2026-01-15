@@ -18,13 +18,12 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.shape.Rectangle;
 import javafx.util.Duration;
-
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.util.HashSet;
 
-public class HelloController {
+public class MainController {
 
     // Contenedores
     @FXML private StackPane memeViewer;
@@ -53,6 +52,7 @@ public class HelloController {
     private final String DEFAULT_IMAGE_PATH = "/app/swiper/memeswiper/defaultImage.jpg";
     private Image LOADING_IMAGE = new Image(getClass().getResource("/app/swiper/memeswiper/loadingImage.gif").toExternalForm());
     private Image PAGE_NOT_FOUND_IMAGE = new Image(getClass().getResource("/app/swiper/memeswiper/pageNotFound.png").toExternalForm());
+    private Image NO_MORE_MEMES  = new Image(getClass().getResource("/app/swiper/memeswiper/noMoreMemes.png").toExternalForm());
     @FXML
     public void initialize() {
         // 1. Clip del sidebar
@@ -97,13 +97,12 @@ public class HelloController {
                 if (finalResponse != null) {
                     String finalUrl = finalResponse.getUrl();
                     showedMemes.add(finalUrl);
-
                     // Pegar datos y poner imagen real
                     iv.setUserData(finalResponse);
                     iv.setImage(new Image(finalUrl, true));
-                } else {
+                }
+                else {
                     // Manejo de error si no hay internet (Opcional: poner imagen de error)
-                    System.out.println("No se pudo cargar el meme.");
                     iv.setImage(PAGE_NOT_FOUND_IMAGE);
                 }
 

@@ -11,7 +11,7 @@ public class HelloApplication extends Application {
 
     private static final double WIDTH = 900;
     private static final double HEIGHT = 600;
-    private HelloController mainController;
+    private MainController mainController;
     @Override
     public void start(Stage stage) throws IOException {
         URL fxmlLocation = getClass().getResource("/app/swiper/memeswiper/MainWindow.fxml");

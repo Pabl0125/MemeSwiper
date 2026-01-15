@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ToggleButton?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<BorderPane fx:id="detailContainer" prefHeight="700.0" prefWidth="800.0"
+            styleClass="detail-root" stylesheets="@styleMainWindow.css"
+            xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="app.swiper.memeswiper.DetailController">
+
+    <center>
+        <StackPane minHeight="400.0" minWidth="400.0" styleClass="image-viewport">
+            <children>
+                <ImageView fx:id="fullImageView" pickOnBounds="true" preserveRatio="true" smooth="true" />
+            </children>
+        </StackPane>
+    </center>
+
+    <bottom>
+        <VBox spacing="10.0" styleClass="detail-footer">
+            <children>
+                <HBox alignment="CENTER_LEFT" prefHeight="60.0" spacing="20.0">
+                    <children>
+                        <ToggleButton fx:id="btnInfoToggle" mnemonicParsing="false" onAction="#handleToggleInfo"
+                                      styleClass="detail-button" text="Info" />
+
+                        <Label fx:id="lblTitle" styleClass="detail-title" text="Meme Title" HBox.hgrow="ALWAYS" />
+
+                        <HBox alignment="CENTER_RIGHT" spacing="10.0" HBox.hgrow="ALWAYS">
+                            <children>
+                                <Button fx:id="btnDownload" onAction="#handleDownload"
+                                        styleClass="download-button" text="⬇ Download" />
+                                <Button onAction="#handleClose" styleClass="detail-button" text="Close" />
+                            </children>
+                        </HBox>
+                    </children>
+                    <padding>
+                        <Insets left="20.0" right="20.0" />
+                    </padding>
+                </HBox>
+
+                <VBox fx:id="infoPanel" managed="false" spacing="5.0" styleClass="info-panel" visible="false">
+                    <children>
+                        <Label fx:id="lblAuthor" styleClass="info-label" text="Autor: u/username" />
+                        <Label fx:id="lblSubreddit" styleClass="info-label" text="Subreddit: r/funny" />
+                        <Label fx:id="lblUps" styleClass="info-label" text="Upvotes: 1500" />
+                        <Label fx:id="lblUrl" styleClass="info-url" text="URL: http://..." wrapText="true" />
+                    </children>
+                </VBox>
+            </children>
+        </VBox>
+    </bottom>
+</BorderPane>
