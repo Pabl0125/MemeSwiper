@@ -151,13 +151,13 @@
 }
 
 .download-button {
-    -fx-background-color: #E50914; /* Rojo estilo Netflix */
+    -fx-background-color: #3498db; /* Rojo estilo Netflix */
     -fx-text-fill: white;
     -fx-font-weight: bold;
 }
 
 .download-button:hover {
-    -fx-background-color: #f40612;
+    -fx-background-color: #03045E;
     -fx-scale-x: 1.05;
     -fx-scale-y: 1.05;
     -fx-cursor: hand;
@@ -176,4 +176,13 @@
 .info-url {
     -fx-text-fill: #4d94ff;
     -fx-font-size: 12px;
+}
+.remove-liked-button {
+    -fx-background-color: #444444;
+    -fx-text-fill: white;
+}
+
+.remove-liked-button:hover {
+    -fx-background-color: #ff4444; /* Rojo al pasar el ratón */
+    -fx-cursor: hand;
 }

@@ -70,7 +70,7 @@
                         <HBox alignment="CENTER" spacing="30.0" styleClass="controls-container">
                             <children>
                                 <Button fx:id="dislikeButton" styleClass="action-button" text="❌" />
-                                <Button fx:id="starButton" styleClass="action-button" text="★" />
+                                <Button fx:id="starButton" styleClass="action-button" text="⬇" />
                                 <Button fx:id="likeButton" styleClass="action-button" text="❤️" />
                             </children>
                         </HBox>

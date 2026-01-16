@@ -17,8 +17,12 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.shape.Rectangle;
+import javafx.stage.FileChooser;
 import javafx.util.Duration;
+
+import java.io.BufferedInputStream;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.URL;
 import java.util.HashSet;
@@ -46,13 +50,13 @@ public class MainController {
     private HashSet<String> showedMemes = new HashSet<>();
     private MemeRequester memeRequester = new MemeRequester();
     private HashSet<MemeResponse> likedMemes = new HashSet<>();
-
+    private int apiCallsCounter = 0;
     private boolean isExpanded = true;
     private final double SIDEBAR_WIDTH = 250;
     private final String DEFAULT_IMAGE_PATH = "/app/swiper/memeswiper/defaultImage.jpg";
     private Image LOADING_IMAGE = new Image(getClass().getResource("/app/swiper/memeswiper/loadingImage.gif").toExternalForm());
     private Image PAGE_NOT_FOUND_IMAGE = new Image(getClass().getResource("/app/swiper/memeswiper/pageNotFound.png").toExternalForm());
-    private Image NO_MORE_MEMES  = new Image(getClass().getResource("/app/swiper/memeswiper/noMoreMemes.png").toExternalForm());
+    private Image NO_MORE_MEMES  = new Image(getClass().getResource("/app/swiper/memeswiper/noMoreMemes.jpg").toExternalForm());
     @FXML
     public void initialize() {
         // 1. Clip del sidebar
@@ -60,7 +64,7 @@ public class MainController {
         clip.widthProperty().bind(sideBar.widthProperty());
         clip.heightProperty().bind(sideBar.heightProperty());
         sideBar.setClip(clip);
-
+        starButton.setOnAction(e -> handleDownload());
         // 2. Cargar historial
         likedMemes = loadLikedMemes();
 
@@ -69,51 +73,102 @@ public class MainController {
             rebindMemeLogic();
         }
     }
+    public MemeResponse getActiveMeme() {
+        // 1. Obtenemos lo que haya en el userData de la carta frontal
+        Object data = card2.getUserData();
 
-    /**
-     * MODIFICADO: Ahora guarda el objeto MemeResponse dentro del ImageView (setUserData)
-     */
+        // 2. Verificamos si es una instancia válida de MemeResponse
+        if (data instanceof MemeResponse) {
+            return (MemeResponse) data;
+        }
+
+        // Si está cargando o no hay nada, devolvemos null
+        return null;
+    }
+    private void handleDownload(){
+        MemeResponse currentMeme = getActiveMeme();
+        if(starButton.isDisable() || (getActiveMeme() == null)) return;
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Download Meme");
+
+        String url = currentMeme.getUrl();
+        String extension = url.substring(url.lastIndexOf("."));
+        if (extension.length() > 4) extension = ".jpg"; // Fallback por si la URL tiene parámetros
+
+        fileChooser.setInitialFileName(currentMeme.getTitle().replaceAll("[^a-zA-Z0-9]", "_") + extension);
+        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Image", "*" + extension));
+
+        // 2. Mostrar la ventana de guardado
+        File file = fileChooser.showSaveDialog(card2.getScene().getWindow());
+        if (file != null) {
+            // 3. Ejecutar la descarga en un hilo aparte para no congelar la UI
+            new Thread(() -> {
+                try (BufferedInputStream in = new BufferedInputStream(new URL(url).openStream());
+                     FileOutputStream fileOutputStream = new FileOutputStream(file)) {
+
+                    byte[] dataBuffer = new byte[1024];
+                    int bytesRead;
+                    while ((bytesRead = in.read(dataBuffer, 0, 1024)) != -1) {
+                        fileOutputStream.write(dataBuffer, 0, bytesRead);
+                    }
+                } catch (IOException e) {}
+            }).start();
+        }
+    }
     private void loadMeme(ImageView iv) {
-        // 1. BLOQUEO INMEDIATO: Evita clics antes de tiempo
         iv.setImage(LOADING_IMAGE);
         iv.setUserData(null);
+
         Thread downloadThread = new Thread(() -> {
             MemeResponse response = null;
-            try {
-                int intentos = 0;
-                // Intentar buscar un meme nuevo
-                do {
-                    response = memeRequester.request();
-                    intentos++;
-                } while (response != null && showedMemes.contains(response.getUrl()) && intentos < 5);
+            int attempts = 0;
+            boolean foundNew = false;
 
+            try {
+                while (attempts < 5 && !foundNew) {
+                    response = memeRequester.request();
+                    attempts++;
+
+                    // Si el meme es válido y NO ha sido mostrado antes
+                    if (response != null && !showedMemes.contains(response.getUrl())) {
+                        foundNew = true;
+                    }
+                }
             } catch (Exception e) {
-                System.err.println("Error en hilo de descarga: " + e.getMessage());
+                System.err.println("Error en petición API: " + e.getMessage());
             }
 
-            // 4. ACTUALIZACIÓN DE UI (Volver al hilo principal)
-            MemeResponse finalResponse = response;
+            final MemeResponse finalResponse = response;
+            final boolean isMemeValid = foundNew;
+
             javafx.application.Platform.runLater(() -> {
-                if (finalResponse != null) {
+                if (isMemeValid) {
+                    // CASO ÉXITO: Meme nuevo encontrado
                     String finalUrl = finalResponse.getUrl();
                     showedMemes.add(finalUrl);
-                    // Pegar datos y poner imagen real
                     iv.setUserData(finalResponse);
                     iv.setImage(new Image(finalUrl, true));
+                    System.out.println("Meme cargado con éxito.");
                 }
                 else {
-                    // Manejo de error si no hay internet (Opcional: poner imagen de error)
-                    iv.setImage(PAGE_NOT_FOUND_IMAGE);
+                    // CASO FALLO: O se agotaron los 5 intentos sin éxito, o hubo error de red
+                    // Aquí forzamos el cambio de imagen para que el GIF desaparezca
+                    if (showedMemes.size() > 0) {
+                        iv.setImage(NO_MORE_MEMES);
+                        System.out.println("Se alcanzó el límite de 5 intentos.");
+                    } else {
+                        // Si ni siquiera hay memes previos, probablemente sea falta de internet
+                        iv.setImage(PAGE_NOT_FOUND_IMAGE);
+                        System.out.println("Error de conexión inicial.");
+                    }
+                    iv.setUserData(null);
                 }
-
-                // 5. DESBLOQUEO: Ya es seguro hacer clic de nuevo
             });
         });
 
         downloadThread.setDaemon(true);
         downloadThread.start();
     }
-
 
     private void animateSwipe(boolean isLike) {
         Duration duration = Duration.millis(450);
@@ -286,22 +341,26 @@ public class MainController {
         memeViewer.requestFocus();
     }
     private void forceReloadCards() {
-        // Limpiamos datos lógicos
+        // 1. Limpiamos datos lógicos de ambas tarjetas
         card1.setUserData(null);
         card2.setUserData(null);
 
-        // Ponemos imagen de carga
+        // 2. Intentamos cargar la imagen de feedback visual
         try {
-            URL loadingUrl = getClass().getResource("/app/swiper/memeswiper/loadingImage.gif");
-            if (loadingUrl != null) {
-                Image imgLoad = new Image(loadingUrl.toExternalForm());
+            var resource = getClass().getResource("/app/swiper/memeswiper/loadingImage.gif");
+
+            if (resource != null) {
+                // Solo creamos el objeto Image una vez para ahorrar memoria
+                Image imgLoad = new Image(resource.toExternalForm());
                 card1.setImage(imgLoad);
                 card2.setImage(imgLoad);
             }
-        } catch (Exception e) { }
+        } catch (Exception e) {
+            System.err.println("No se pudo cargar la imagen de carga: " + e.getMessage());
+        }
 
-        // Recargamos ambas tarjetas
-        // Nota: loadMeme debe ser tu versión asíncrona (con Thread)
+        // 3. Disparamos la carga asíncrona de los nuevos memes
+        // Es mejor cargar primero el de card2 (el que está al frente)
         loadMeme(card2);
         loadMeme(card1);
     }
