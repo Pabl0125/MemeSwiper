@@ -125,14 +125,14 @@ Este proyecto utiliza la excelente API de memes desarrollada por **D3vd**. Graci
 ## 📂 Estructura del Proyecto
 
 * `src/main/java`:
-* **Controladores:** Lógica de la UI (`HelloController`, `GalleryController`, `DetailController`).
-* **API & Modelos:** Clases de comunicación (`MemeRequester`) y objetos de datos (`MemeResponse`).
+  **Controladores:** Lógica de la UI (`HelloController`, `GalleryController`, `DetailController`).
+  **API & Modelos:** Clases de comunicación (`MemeRequester`) y objetos de datos (`MemeResponse`).
 
 
 * `src/main/resources`:
-* **Vista:** Archivos FXML para la arquitectura de la interfaz.
-* **Estilos:** CSS para el tema oscuro personalizado.
-* **Assets:** Imágenes de carga (GIFs).
+  **Vista:** Archivos FXML para la arquitectura de la interfaz.
+  **Estilos:** CSS para el tema oscuro personalizado.
+  **Assets:** Imágenes de carga (GIFs).
 
 
 * `build.gradle.kts`: Configuración del proyecto, dependencias y plugin `jlink` para crear ejecutables nativos.
