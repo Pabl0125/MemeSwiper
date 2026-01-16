@@ -31,10 +31,46 @@ Este proyecto utiliza estándares modernos y estables. Asegúrate de tener:
 Este proyecto utiliza **Gradle Java Toolchains**. Esto significa que:
 
 1.  **Automático:** Si tienes Java 21 instalado, Gradle lo detectará y usará automáticamente.
-2.  **Aprovisionamiento:** Si **no** tienes Java 21, Gradle intentará descargarlo en un entorno aislado (sandbox) para ejecutar la aplicación sin que tengas que instalar nada manualmente.
+2.  **Aprovisionamiento:** Si **no** tienes Java 21 sino una version anterior como java 17, Gradle intentará descargarlo en un entorno aislado (sandbox) para ejecutar la aplicación sin que tengas que instalar nada manualmente.
 3.  **Compatibilidad:** Si tu sistema usa una versión más moderna (ej. Java 25) por defecto, puedes forzar el uso de una versión estable lanzando el comando así:
     `JAVA_HOME=/ruta/a/tu/java-21 ./gradlew run`
 
+---
+## ⚠️ Nota para usuarios con Java 22 o superior
+
+Si tu sistema operativo utiliza por defecto una versión de Java "Early Access" o muy reciente (superior a la soportada oficialmente por la versión de Gradle de este proyecto), es posible que encuentres un error al intentar iniciar la aplicación similar a:
+
+> `java.lang.IllegalArgumentException: Unsupported major.minor version`
+> o un error indicando una versión de clase `66.0` / `69.0`.
+
+Aunque este proyecto configura automáticamente un entorno aislado (**Sandbox**) con Java 21 para compilar el código, **Gradle necesita una versión de Java compatible para poder arrancarse a sí mismo** antes de leer esa configuración. Las versiones experimentales de Java (como la 25) a menudo rompen el proceso de arranque de Gradle.
+
+### ✅ Solución
+
+No necesitas desinstalar tu versión actual de Java. Simplemente debes indicar a Gradle que utilice una versión estable (Java 17 o 21) **solo para el proceso de arranque**.
+
+#### Opción A: Solución Permanente (Recomendada)
+Crea o edita el archivo `gradle.properties` en tu carpeta de usuario (no en el proyecto) para fijar el Java de arranque de Gradle globalmente sin afectar a tus variables de sistema.
+* **Linux/macOS:** `~/. gradle/gradle.properties`
+* **Windows:** `%USERPROFILE%\.gradle\gradle.properties`
+
+Añade la siguiente línea apuntando a tu instalación de Java estable:
+```properties
+org.gradle.java.home=/ruta/absoluta/a/tu/java-21-openjdk
+```
+#### Opción B: Solución Temporal (Línea de comandos)
+
+Puedes forzar la variable de entorno solo para la ejecución actual:
+
+En Linux / macOS:
+```properties
+JAVA_HOME=/usr/lib/jvm/java-21-openjdk-amd64 ./gradlew run
+```
+En Windows (PowerShell):
+```properties
+$env:JAVA_HOME="C:\Archivos de Programa\Java\jdk-21"
+.\gradlew run
+```
 ---
 
 ## 🛠️ Instrucciones de Instalación
