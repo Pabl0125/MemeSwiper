@@ -2,6 +2,7 @@
 # 🚀 Meme Swiper - JavaFX Desktop App
 
 Bienvenido a **Meme Swiper**, una aplicación de escritorio moderna construida con **JavaFX** y **Gradle** que permite explorar, guardar y gestionar tus memes favoritos de forma fluida y visual. La aplicacion continua en desarrollo aunque ya se puede acceder a las funcionalidades principales
+
 ---
 
 ## 📋 Requisitos Previos
