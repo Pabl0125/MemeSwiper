@@ -9,6 +9,7 @@ import javafx.scene.control.ToggleButton;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
@@ -28,7 +29,7 @@ public class DetailController {
     @FXML private Button btnDownload;
     @FXML private Label lblTitle, lblAuthor, lblSubreddit, lblUps, lblUrl;
     @FXML private Button btnRemoveFromGallery;
-
+    @FXML private StackPane imageContainer;
     private MemeResponse currentMeme;
     private GalleryController galleryController; // Referencia al "padre"
 
@@ -44,8 +45,8 @@ public class DetailController {
             fullImageView.setSmooth(true);
 
             // Bindeamos el tamaño de la imagen al contenedor menos el espacio de botones
-            fullImageView.fitWidthProperty().bind(detailContainer.widthProperty().subtract(40));
-            fullImageView.fitHeightProperty().bind(detailContainer.heightProperty().subtract(160));
+            fullImageView.fitWidthProperty().bind(imageContainer.widthProperty());
+            fullImageView.fitHeightProperty().bind(imageContainer.heightProperty());
         }
     }
 
@@ -109,30 +110,36 @@ public class DetailController {
         if (file != null) {
             // 3. Ejecutar la descarga en un hilo aparte para no congelar la UI
             new Thread(() -> {
-                try (BufferedInputStream in = new BufferedInputStream(new URL(url).openStream());
-                     FileOutputStream fileOutputStream = new FileOutputStream(file)) {
+                try {
+                    URL urlObj = java.net.URI.create(url).toURL();
+                    try (BufferedInputStream in = new BufferedInputStream(urlObj.openStream());
+                         FileOutputStream fileOutputStream = new FileOutputStream(file)) {
 
-                    byte[] dataBuffer = new byte[1024];
-                    int bytesRead;
-                    while ((bytesRead = in.read(dataBuffer, 0, 1024)) != -1) {
-                        fileOutputStream.write(dataBuffer, 0, bytesRead);
-                    }
+                        byte[] dataBuffer = new byte[1024];
+                        int bytesRead;
+                        while ((bytesRead = in.read(dataBuffer, 0, 1024)) != -1) {
+                            fileOutputStream.write(dataBuffer, 0, bytesRead);
+                        }
 
-                    javafx.application.Platform.runLater(() -> {
-                        btnDownload.setText("¡Guardado!");
-                        btnDownload.setStyle("-fx-background-color: #2ecc71;"); // Cambia a verde
+                        javafx.application.Platform.runLater(() -> {
+                            btnDownload.setText("¡Guardado!");
+                            btnDownload.setStyle("-fx-background-color: #2ecc71;"); // Cambia a verde
 
-                        new Thread(() -> {
-                            try { Thread.sleep(2000); } catch (InterruptedException ex) {}
-                            javafx.application.Platform.runLater(() -> {
-                                btnDownload.setText("⬇ Descargar");
-                                btnDownload.getStyleClass().add("download-button");
-                            });
-                        }).start();
-                    });
+                            new Thread(() -> {
+                                try {
+                                    Thread.sleep(2000);
+                                } catch (InterruptedException ex) {
+                                }
+                                javafx.application.Platform.runLater(() -> {
+                                    btnDownload.setText("⬇ Descargar");
+                                    btnDownload.getStyleClass().add("download-button");
+                                });
+                            }).start();
+                        });
 
-                    // Opcional: Mostrar una alerta de éxito al usuario
-                } catch (IOException e) {}
+                        // Opcional: Mostrar una alerta de éxito al usuario
+                    } catch (IOException e) {}
+                }catch (Exception E){}
             }).start();
         }
     }

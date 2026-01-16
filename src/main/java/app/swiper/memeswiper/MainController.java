@@ -103,19 +103,27 @@ public class MainController {
         if (file != null) {
             // 3. Ejecutar la descarga en un hilo aparte para no congelar la UI
             new Thread(() -> {
-                try (BufferedInputStream in = new BufferedInputStream(new URL(url).openStream());
-                     FileOutputStream fileOutputStream = new FileOutputStream(file)) {
+                try {
+                    // CORRECCIÓN APLICADA AQUÍ: URI.create().toURL()
+                    URL urlObj = java.net.URI.create(url).toURL();
 
-                    byte[] dataBuffer = new byte[1024];
-                    int bytesRead;
-                    while ((bytesRead = in.read(dataBuffer, 0, 1024)) != -1) {
-                        fileOutputStream.write(dataBuffer, 0, bytesRead);
+                    try (BufferedInputStream in = new BufferedInputStream(urlObj.openStream());
+                         FileOutputStream fileOutputStream = new FileOutputStream(file)) {
+
+                        byte[] dataBuffer = new byte[1024];
+                        int bytesRead;
+                        while ((bytesRead = in.read(dataBuffer, 0, 1024)) != -1) {
+                            fileOutputStream.write(dataBuffer, 0, bytesRead);
+                        }
                     }
-                } catch (IOException e) {}
+                } catch (IOException e) {
+                    e.printStackTrace(); // Es bueno imprimir el error para saber si falla
+                }
             }).start();
         }
     }
     private void loadMeme(ImageView iv) {
+        // Feedback visual inmediato
         iv.setImage(LOADING_IMAGE);
         iv.setUserData(null);
 
@@ -123,45 +131,59 @@ public class MainController {
             MemeResponse response = null;
             int attempts = 0;
             boolean foundNew = false;
+            boolean networkError = false; // Nueva bandera para diagnosticar
 
             try {
+                // Intentamos hasta 5 veces encontrar uno no repetido
                 while (attempts < 5 && !foundNew) {
-                    response = memeRequester.request();
+                    MemeResponse tempResponse = memeRequester.request();
                     attempts++;
 
-                    // Si el meme es válido y NO ha sido mostrado antes
-                    if (response != null && !showedMemes.contains(response.getUrl())) {
-                        foundNew = true;
+                    if (tempResponse == null) {
+                        networkError = true;
+                        // Si la API falla (null), no tiene sentido seguir intentando en bucle
+                        break;
                     }
+
+                    // BLOQUE CRÍTICO: Sincronizamos el acceso al HashSet
+                    // Esto soluciona el problema de las imágenes idénticas al inicio
+                    synchronized (showedMemes) {
+                        // .add() devuelve 'true' si el elemento NO existía y se añadió correctamente
+                        // .add() devuelve 'false' si ya existía
+                        if (showedMemes.add(tempResponse.getUrl())) {
+                            response = tempResponse;
+                            foundNew = true;
+                        }
+                    }
+                    // Si foundNew es false (era repetido), el bucle while continúa automáticamente
                 }
             } catch (Exception e) {
-                System.err.println("Error en petición API: " + e.getMessage());
+                System.err.println("Excepción en hilo: " + e.getMessage());
+                networkError = true;
             }
 
+            // Variables finales para usar en el hilo de UI
             final MemeResponse finalResponse = response;
-            final boolean isMemeValid = foundNew;
+            final boolean success = foundNew;
+            final boolean isNetworkError = networkError;
 
             javafx.application.Platform.runLater(() -> {
-                if (isMemeValid) {
-                    // CASO ÉXITO: Meme nuevo encontrado
-                    String finalUrl = finalResponse.getUrl();
-                    showedMemes.add(finalUrl);
+                if (success && finalResponse != null) {
+                    // CASO 1: Éxito
                     iv.setUserData(finalResponse);
-                    iv.setImage(new Image(finalUrl, true));
-                    System.out.println("Meme cargado con éxito.");
+                    iv.setImage(new Image(finalResponse.getUrl(), true));
                 }
                 else {
-                    // CASO FALLO: O se agotaron los 5 intentos sin éxito, o hubo error de red
-                    // Aquí forzamos el cambio de imagen para que el GIF desaparezca
-                    if (showedMemes.size() > 0) {
-                        iv.setImage(NO_MORE_MEMES);
-                        System.out.println("Se alcanzó el límite de 5 intentos.");
-                    } else {
-                        // Si ni siquiera hay memes previos, probablemente sea falta de internet
-                        iv.setImage(PAGE_NOT_FOUND_IMAGE);
-                        System.out.println("Error de conexión inicial.");
-                    }
+                    // CASO 2: Fallo
                     iv.setUserData(null);
+
+                    if (isNetworkError && showedMemes.isEmpty()) {
+                        // Falló la red y no tenemos nada en el historial -> Error de carga/Subreddit inválido
+                        iv.setImage(PAGE_NOT_FOUND_IMAGE);
+                    } else {
+                        // La red funciona, pero tras 5 intentos solo obtuvimos repetidos -> No hay más memes nuevos
+                        iv.setImage(NO_MORE_MEMES);
+                    }
                 }
             });
         });
@@ -169,7 +191,6 @@ public class MainController {
         downloadThread.setDaemon(true);
         downloadThread.start();
     }
-
     private void animateSwipe(boolean isLike) {
         Duration duration = Duration.millis(450);
         double deltaX = isLike ? 750 : -750;
@@ -341,28 +362,30 @@ public class MainController {
         memeViewer.requestFocus();
     }
     private void forceReloadCards() {
-        // 1. Limpiamos datos lógicos de ambas tarjetas
+        // 1. Limpiamos datos lógicos
         card1.setUserData(null);
         card2.setUserData(null);
 
-        // 2. Intentamos cargar la imagen de feedback visual
+        // 2. Feedback visual (Loading)
         try {
-            var resource = getClass().getResource("/app/swiper/memeswiper/loadingImage.gif");
-
-            if (resource != null) {
-                // Solo creamos el objeto Image una vez para ahorrar memoria
-                Image imgLoad = new Image(resource.toExternalForm());
-                card1.setImage(imgLoad);
-                card2.setImage(imgLoad);
-            }
+            // Usamos la constante que ya tienes definida
+            card1.setImage(LOADING_IMAGE);
+            card2.setImage(LOADING_IMAGE);
         } catch (Exception e) {
-            System.err.println("No se pudo cargar la imagen de carga: " + e.getMessage());
+            System.err.println("Error setting loading image: " + e.getMessage());
         }
 
-        // 3. Disparamos la carga asíncrona de los nuevos memes
-        // Es mejor cargar primero el de card2 (el que está al frente)
+        // 3. Carga asíncrona
+        // Lanzamos la carta frontal (card2) inmediatamente
         loadMeme(card2);
-        loadMeme(card1);
+
+        // Lanzamos la carta trasera (card1) con un retraso ínfimo (100ms)
+        // Esto no es estrictamente necesario para la lógica (el synchronized ya lo arregla),
+        // pero ayuda a que la UI respire y la red no se sature de golpe.
+        new Thread(() -> {
+            try { Thread.sleep(100); } catch (InterruptedException e) {}
+            javafx.application.Platform.runLater(() -> loadMeme(card1));
+        }).start();
     }
     public HashSet<MemeResponse> getLikedMemes() { return likedMemes; }
 }

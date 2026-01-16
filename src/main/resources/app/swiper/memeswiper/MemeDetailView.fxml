@@ -17,7 +17,7 @@
             fx:controller="app.swiper.memeswiper.DetailController">
 
     <center>
-        <StackPane minHeight="400.0" minWidth="400.0" styleClass="image-viewport">
+        <StackPane fx:id="imageContainer" minHeight="-Infinity" minWidth="-Infinity" styleClass="image-viewport">
             <children>
                 <ImageView fx:id="fullImageView" pickOnBounds="true" preserveRatio="true" smooth="true" />
             </children>

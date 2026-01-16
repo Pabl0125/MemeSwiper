@@ -7,7 +7,7 @@
 <?import javafx.scene.layout.VBox?>
 
 <VBox alignment="CENTER" maxHeight="800.0" maxWidth="600.0" spacing="0.0"
-      xmlns="http://javafx.com/javafx/24.0.1" xmlns:fx="http://javafx.com/fxml/1">
+      xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1">
     <children>
 
         <StackPane fx:id="memeViewer" styleClass="user-card-container" VBox.vgrow="ALWAYS">
