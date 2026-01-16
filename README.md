@@ -1,8 +1,7 @@
 
 # 🚀 Meme Swiper - JavaFX Desktop App
 
-Bienvenido a **Meme Swiper**, una aplicación de escritorio moderna construida con **JavaFX** y **Gradle** que permite explorar, guardar y gestionar tus memes favoritos de forma fluida y visual.
-**NOTA**: La aplicacion continua en desarrollo aunque ya se puede acceder a las funcionalidades principales
+Bienvenido a **Meme Swiper**, una aplicación de escritorio moderna construida con **JavaFX** y **Gradle** que permite explorar, guardar y gestionar tus memes favoritos de forma fluida y visual. La aplicacion continua en desarrollo aunque ya se puede acceder a las funcionalidades principales
 ---
 
 ## 📋 Requisitos Previos
@@ -51,8 +50,8 @@ Este proyecto utiliza la excelente API de memes desarrollada por **D3vd**. Graci
 
 ## 📂 Estructura del Proyecto
 
-* `src/main/java`: Lógica de controladores (`HelloController`, `GalleryController`, `DetailController`) y modelos de datos.
-* `src/main/resources`: Archivos **FXML** para la arquitectura de la UI y **CSS** para el diseño oscuro personalizado.
+* `src/main/java`: Lógica de controladores (`HelloController`, `GalleryController`, `DetailController`) así como las clases que se comunican con la API(`MemeResquester`, `MemeResponse`) y modelos de datos.
+* `src/main/resources`: Archivos **FXML** para la arquitectura de la UI y **CSS** para el diseño oscuro personalizado así como las imagenes de carga y por defecto.
 * `build.gradle`: Configuración de módulos de JavaFX y dependencias externas.
 
 ---
